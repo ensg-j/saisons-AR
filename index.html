@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tree</title>
+    <script src="js/aframe.min.js"></script>
+<script src="js/aframe-ar.js"></script>
+<script src="js/aframe-particle-system-component.js"></script>
+    </script>
+  </head>
+  <body>
+    <a-scene embedded vr-mode-ui="enabled: false;" arjs="debugUIEnabled:false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
+
+        <a-assets>
+            <a-asset-item id="summerTree" src="/models/summer/scene.gltf"></a-asset-item>
+            <a-asset-item id="winterTree" src="/models/winter/scene.gltf"></a-asset-item>
+            <a-asset-item id="autumnTree" src="/models/autumn/scene.gltf"></a-asset-item>
+          </a-assets>
+
+
+      <a-marker preset="hiro" id="marker1">
+        <a-plane position="-1.5 0.5 0" color="black" rotation="-90 0 0" width="1.2" height="1.2"></a-plane>
+        <a-text value="summer"  color="white" rotation="-90 0 0" position="-1.9 0.7 -0.2" scale="1 1 1"></a-text>
+        <a-plane position="-2.8 0.5 0" color="black" rotation="-90 0 0" width="1.2" height="1.2"></a-plane>
+        <a-text value="autumn"  color="white" rotation="-90 0 0" position="-3.1 0.7 -0.2" scale="1 1 1"></a-text>
+        <a-plane position="-4.1 0.5 0" color="black" rotation="-90 0 0" width="1.2" height="1.2"></a-plane>
+        <a-text value="winter"  color="white" rotation="-90 0 0" position="-4.3 0.7 -0.2" scale="1 1 1"></a-text>
+      </a-marker>
+
+      <a-marker type="barcode" value="0" id="modelMarker">
+        <a-circle position="0 0 0" material="side: double; color: #ffffff; opacity: 1" rotation="-90 0 0" geometry="primitive:circle;radius:0.5" radius="0.7"></a-circle>
+        
+        <a-entity 
+            id="snow"
+            position="0 0 0" 
+            particle-system="
+                texture: data/images/flocon.png;
+                type: SPE.distributions.BOX;
+                color: #ffffff; 
+                positionSpread: 5 5 5;
+                size: 1, 0;
+                rotationAxis: x;
+                velocityValue: 0.001 4 0.001;
+                velocitySpread: 2 0 2; 
+                direction: 1;
+                accelerationValue: 0.01 0.01 0.01;
+                accelerationSpread: 0.01 0.01 0.01;
+                rotationAngle: 3.14; 
+                blending: 1;
+                particleCount: 2000;
+                maxAge: 20; ">
+        </a-entity>
+        <a-entity 
+            id="rain"
+            position="0 0 0" 
+            particle-system="
+                texture: data/images/rain.png;
+                type: SPE.distributions.BOX;
+                color: #ffffff; 
+                positionSpread: 5 5 5;
+                size: 1, 0;
+                rotationAxis: x;
+                velocityValue: 0.001 4 0.001;
+                velocitySpread: 2 0 2; 
+                direction: 1;
+                accelerationValue: 0.01 0.01 0.01;
+                accelerationSpread: 0.01 0.01 0.01;
+                rotationAngle: 3.14; 
+                blending: 1;
+                particleCount: 2000;
+                maxAge: 20; ">
+        </a-entity>
+        <a-entity  id="summer"  position="0 0 0" rotation="0 0 0" scale="0.00 0.00 0.00" gltf-model="#summerTree" > </a-entity>
+        <a-entity  id="autumn"  position="0 0 0" rotation="0 0 0" scale="0.00 0.00 0.00" gltf-model="#autumnTree" > </a-entity>
+        <a-entity id="winter"  position="0 0 0" rotation="0 0 0" scale="0.00 0.00 0.00" gltf-model="#winterTree" ></a-entity>
+               
+      </a-marker>
+
+      <a-marker preset='kanji' id="marker2">
+        <a-sphere position="0 0.7 0" radius="0.25" color="red">
+        </a-sphere>
+    </a-marker>
+      
+      <a-entity camera></a-entity>
+      
+    </a-scene>
+    <script>
+    function distance(x1,y1,z1,x2,y2,z2){
+        return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2)+Math.pow(z1-z2,2));
+    }
+    
+
+    var entityEl1 = document.querySelector('#summer');
+    var entityEl2 = document.querySelector('#winter');
+    var entityEl3 = document.querySelector('#autumn');
+
+    var posMarker1 = new THREE.Vector3();
+    var posMarker2 = new THREE.Vector3();
+    var dist = 1;
+
+    var scaleModelsummerAutumn = "1 1 1";
+    var scaleModelWinter = "0.4 0.4 0.4";
+    
+
+    window.setInterval(function(){
+        var markerEl1 = document.querySelector("#marker1");
+        markerEl1.object3D.getWorldPosition(posMarker1);
+        var markerEl2 = document.querySelector("#marker2");
+        markerEl2.object3D.getWorldPosition(posMarker2);
+        dist = distance(posMarker1.x,posMarker1.y,posMarker1.z,posMarker2.x,posMarker2.y,posMarker2.z);
+
+        
+        if (dist > 3.5){
+          entityEl1.setAttribute('scale',"0.00 0.00 0.00");
+          entityEl3.setAttribute('scale',"0.00 0.00 0.00");
+          entityEl2.setAttribute('scale',scaleModelWinter);
+          document.querySelector("#rain").components["particle-system"].particleGroup.emitters[0].disable();
+          document.querySelector("#snow").components["particle-system"].particleGroup.emitters[0].enable();
+            
+            
+            }
+        else {
+          entityEl2.setAttribute('scale',"0.00 0.00 0.00");
+          
+          if (dist <2){
+            entityEl3.setAttribute('scale',"0.00 0.00 0.00");
+            entityEl1.setAttribute('scale',scaleModelsummerAutumn);
+            document.querySelector("#snow").components["particle-system"].particleGroup.emitters[0].disable();
+            document.querySelector("#rain").components["particle-system"].particleGroup.emitters[0].disable();
+            
+            
+          }else {
+            entityEl1.setAttribute('scale',"0.00 0.00 0.00");
+            entityEl3.setAttribute('scale',scaleModelsummerAutumn);
+            //document.querySelector("#snow").components["particle-system"]["attrValue"]["texture"] = "/data/images/cross.png";
+            document.querySelector("#snow").components["particle-system"].particleGroup.emitters[0].disable();
+            document.querySelector("#rain").components["particle-system"].particleGroup.emitters[0].enable();
+            
+          }
+        }
+
+    }, 1000);
+
+    
+    </script>
+  </body>
+</html>
